@@ -5,10 +5,6 @@ WORKDIR /home/node/
 COPY --chown=node:node ./backend/package*.json .
 RUN npm ci
 
-# fix a bug with bcrypt compilation
-RUN npm uninstall bcrypt
-RUN npm ci bcrypt
-
 COPY --chown=node:node ./backend/ .
 
 USER node

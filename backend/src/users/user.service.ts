@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Users } from './entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -20,17 +21,34 @@ export class UserService {
    * we have defined what are the keys we are expecting from body
    * @returns promise of user
    */
-  createUser(createUserDto: CreateUserDto): Promise<Users> {
+  async createUser(createUserDto: CreateUserDto): Promise<Users> {
+    const salt: string = await bcrypt.genSalt();
+    const hash: string = await bcrypt.hash(createUserDto.password, salt);
     const user: Users = new Users();
     user.username = createUserDto.username;
     user.mail = createUserDto.mail;
-    user.password = createUserDto.password;
+    user.password = hash;
 
-    const date = new Date().toDateString();
+    const date: string = new Date().toDateString();
 
     // user.created_at = date;
     user.last_connexion = date;
-    return this.userRepository.save(user);
+    try {
+      return await this.userRepository.save(user);
+    } catch(e) {
+        if(e.code === '23505') {
+          const detail = e.detail;
+          const columnNameMatch = /Key \(([^)]+)\)/.exec(detail);       
+          if (columnNameMatch && columnNameMatch[1]) {
+            const columnName = columnNameMatch[1];
+            throw new ConflictException(`La valeur dans la colonne '${columnName}' existe déjà.`);
+          } else {
+            throw new ConflictException('Une erreur de duplication est survenue.');
+          }
+        } else {
+          throw e;
+        }
+      }
   }
 
   /**
@@ -50,8 +68,8 @@ export class UserService {
     return this.userRepository.findOneBy({ id });
   }
 
-  findOneByUsername(username: string): Promise<Users> {
-    return this.userRepository.findOneBy({ username });
+  findOneByMail(mail: string): Promise<Users> {
+    return this.userRepository.findOneBy({ mail });
   }
 
   /**
