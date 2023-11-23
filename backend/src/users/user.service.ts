@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Users } from './entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -20,14 +21,16 @@ export class UserService {
    * we have defined what are the keys we are expecting from body
    * @returns promise of user
    */
-  createUser(createUserDto: CreateUserDto): Promise<Users> {
+  async createUser(createUserDto: CreateUserDto): Promise<Users> {
+    const salt: string = await bcrypt.genSalt();
+    const hash: string = await bcrypt.hash(createUserDto.password, salt);
     const user: Users = new Users();
     user.username = createUserDto.username;
     user.mail = createUserDto.mail;
-    user.password = createUserDto.password;
+    user.password = hash;
     user.role = createUserDto.role;
 
-    const date = new Date().toDateString();
+    const date: string = new Date().toDateString();
 
     user.created_at = date;
     user.last_connexion = date;
@@ -51,8 +54,8 @@ export class UserService {
     return this.userRepository.findOneBy({ id });
   }
 
-  findOneByUsername(username: string): Promise<Users> {
-    return this.userRepository.findOneBy({ username });
+  findOneByMail(mail: string): Promise<Users> {
+    return this.userRepository.findOneBy({ mail });
   }
 
   /**

@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 
 const passwordRegEx =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&])[A-Za-zd@$!%*?&]{8,20}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&.])[A-Za-zd@$!%*?&.]{8,20}$/;
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -33,6 +33,6 @@ export class CreateUserDto {
   password: string;
 
   @IsNotEmpty()
-  @IsEnum(['user', 'admin'])
+  @IsEnum(['Admin', 'Teacher', 'Student'])
   role: string;
 }
