@@ -21,7 +21,12 @@ services:
       dockerfile: dockerfiles/backend
     restart: always
     environment:
+      JWT_SECRET: ${JWT_SECRET}
       BACKEND_PORT: ${BACKEND_PORT}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
     ports:
       - ${BACKEND_PORT}:${BACKEND_PORT}
     expose:
