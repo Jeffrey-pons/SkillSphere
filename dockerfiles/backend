@@ -1,8 +1,0 @@
-FROM node:lts
-
-# Dependencies
-WORKDIR /app/backend
-COPY backend/ .
-RUN npm install
-
-ENTRYPOINT [ "npm", "run", "start" ]
