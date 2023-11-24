@@ -12,6 +12,7 @@ export class CategoriesService {
     private categoriesRepository: Repository<Category>,
   ) {}
   create(createCategoryDto: CreateCategoryDto): void {
+    console.log('test');
     this.categoriesRepository.save(createCategoryDto);
   }
 

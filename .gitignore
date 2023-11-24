@@ -20,5 +20,5 @@
 db-data/
 .env
 .npm
-dist
-node_modules
+dist/
+node_modules/
