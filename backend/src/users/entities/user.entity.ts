@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Users {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @Column({ type: 'varchar', length: 30, unique: true })
@@ -11,7 +11,7 @@ export class Users {
   @Column({ type: 'varchar', length: 320, unique: true })
   mail: string;
 
-  @Column({ type: 'enum', enum: ['user', 'admin'] })
+  @Column({ type: 'enum', enum: ['Admin', 'Teacher', 'Student'] })
   role: string;
 
   @Column({ type: 'varchar' })

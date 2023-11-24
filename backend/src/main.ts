@@ -10,6 +10,7 @@ const host: string = process.env.BACKEND_HOST;
 console.log(`${host}:${port}`);
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   await app.listen(port, host);
 }
 bootstrap();
