@@ -19,14 +19,7 @@ export class UserController {
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
-    try {
-      return this.userService.createUser(createUserDto);
-    } catch (e) {
-      if (e instanceof QueryFailedError) {
-        throw new ForbiddenException();
-      }
-      throw e;
-    }
+    return this.userService.createUser(createUserDto);
   }
 
   @Get()

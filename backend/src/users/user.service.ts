@@ -4,6 +4,7 @@ import { QueryFailedError, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Users } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { log } from 'console';
 
 @Injectable()
 export class UserService {
