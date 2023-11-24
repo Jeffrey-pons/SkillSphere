@@ -1,0 +1,40 @@
+FROM node:18-alpine As dev
+
+WORKDIR /home/node/
+
+COPY --chown=node:node ./backend/package*.json .
+RUN npm ci
+
+COPY --chown=node:node ./backend/ .
+
+USER node
+
+############################
+
+FROM node:18-alpine As build
+
+WORKDIR /home/node/
+
+COPY --chown=node:node package*.json ./
+
+COPY --chown=node:node --from=dev /home/node/node_modules ./node_modules
+COPY --chown=node:node ./backend/ .
+RUN npm run build
+
+ENV NODE_ENV production
+
+RUN npm ci --only=production && npm cache clean --force
+
+# fix a bug with bcrypt compilation
+RUN npm uninstall bcrypt && npm ci bcrypt
+
+USER node
+
+###########################
+
+FROM node:18-alpine As prod
+
+COPY --chown=node:node --from=build /home/node/node_modules ./node_modules
+COPY --chown=node:node --from=build /home/node/dist ./dist
+
+CMD [ "node", "dist/main.js" ]
