@@ -1,5 +1,24 @@
-# code config files
+# IDEs and editors
+.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.vercel
 .devcontainer/
 
+# miscalenous
 db-data/
 .env
+.npm
+dist
+node_modules
