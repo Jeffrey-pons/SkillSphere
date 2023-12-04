@@ -2,7 +2,7 @@ FROM node:lts-alpine as dev
 
 WORKDIR /home/node/
 
-COPY --chown=node:node ./backend/package*.json .
+COPY --chown=node:node ./backend/ .
 RUN npm ci
 
 COPY --chown=node:node ./backend/ .
