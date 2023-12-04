@@ -19,13 +19,21 @@ services:
       context: .
       dockerfile: dockerfiles/backend-dev
     restart: always
-    env_file:
-      - .env
+    environment:
+      - BACKEND_HOST=${BACKEND_HOST}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - JWT_SECRET=${JWT_SECRET}
     ports:
       - ${BACKEND_PORT}:${BACKEND_PORT}
     expose:
       - ${BACKEND_PORT}
     volumes:
-      - ./backend:/home/node
-      - /home/node/node_modules
+      - ./backend/:/home/node/app/
+      - /home/node/app/node_modules/
     command: npm run start:dev
+    depends_on:
+      - database
