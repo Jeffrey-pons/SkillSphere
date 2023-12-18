@@ -31,4 +31,14 @@ export class CoursesService {
   remove(id: number): Promise<DeleteResult> {
     return this.coursesRepository.delete(id);
   }
+
+  async findByCriteria(criteria: string): Promise<Course[]> {
+    const courses: Course[] = await this.findAll()
+    return courses.filter((course: Course) => {
+      return (
+        (!criteria || course.title.toLowerCase().includes(criteria.toLowerCase())) &&
+        (!criteria || course.level.toLowerCase().includes(criteria.toLowerCase()))
+      )
+    })
+  }
 }

@@ -2,6 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import {Category} from "../categories/entities/category.entity";
+import {Course} from "./entities/course.entity";
 
 @Controller('courses')
 export class CoursesController {
@@ -30,5 +32,10 @@ export class CoursesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.coursesService.remove(+id);
+  }
+
+  @Get(':criteria')
+  findByCriteria(@Param('criteria') criteria: string): Promise<Course[]> {
+    return this.coursesService.findByCriteria(criteria)
   }
 }
