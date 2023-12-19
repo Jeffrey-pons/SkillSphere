@@ -5,12 +5,11 @@ import {
   Body,
   Param,
   Delete,
-  ForbiddenException,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { QueryFailedError } from 'typeorm';
 import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('user')
@@ -21,10 +20,17 @@ export class UserController {
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.createUser(createUserDto);
   }
-
+  
   @Get()
   findAll() {
     return this.userService.findAllUser();
+  }
+  
+  @UseGuards(AuthGuard)
+  @Get('me')
+  findMe(@Request() req) {
+    const user = req.user;
+    return this.userService.findOneById(user.id);
   }
 
   @Get(':id')

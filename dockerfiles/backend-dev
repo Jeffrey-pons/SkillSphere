@@ -5,6 +5,4 @@ WORKDIR /home/node/app/
 COPY --chown=node:node ./backend/package*.json .
 RUN npm ci
 
-COPY --chown=node:node ./backend/ .
-
 USER node
