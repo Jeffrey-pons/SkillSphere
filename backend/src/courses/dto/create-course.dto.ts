@@ -1,13 +1,4 @@
-import {
-  IsAlphanumeric,
-  IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  Matches,
-  MinLength,
-  MaxLength,
-  I
-} from 'class-validator';
+import { IsNotEmpty, MinLength, MaxLength } from 'class-validator';
 
 export class CreateCourseDto {
   @IsNotEmpty()
@@ -16,8 +7,8 @@ export class CreateCourseDto {
   title: string;
 
   @IsNotEmpty()
-  file: string;
   user_id: string;
-  status: string;
+
+  @IsNotEmpty()
   level: string;
 }

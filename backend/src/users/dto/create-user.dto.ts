@@ -6,6 +6,7 @@ import {
   Matches,
   MinLength,
 } from 'class-validator';
+import { Role } from '../enum/roles';
 
 const passwordRegEx =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&])[A-Za-zd@$!%*?&]{8,20}$/;
@@ -31,8 +32,4 @@ export class CreateUserDto {
       one special character`,
   })
   password: string;
-
-  @IsNotEmpty()
-  @IsEnum(['user', 'admin'])
-  role: string;
 }

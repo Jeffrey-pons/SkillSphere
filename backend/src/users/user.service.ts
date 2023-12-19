@@ -25,11 +25,10 @@ export class UserService {
     user.username = createUserDto.username;
     user.mail = createUserDto.mail;
     user.password = createUserDto.password;
-    user.role = createUserDto.role;
 
     const date = new Date().toDateString();
 
-    user.created_at = date;
+    // user.created_at = date;
     user.last_connexion = date;
     return this.userRepository.save(user);
   }
@@ -47,7 +46,7 @@ export class UserService {
    * @param id is type of number, which represent the id of user.
    * @returns promise of user
    */
-  findOneById(id: number): Promise<Users> {
+  findOneById(id: string): Promise<Users> {
     return this.userRepository.findOneBy({ id });
   }
 
@@ -60,7 +59,7 @@ export class UserService {
    * @param id is the type of number, which represent id of user
    * @returns nuber of rows deleted or affected
    */
-  removeUser(id: number): Promise<{ affected?: number }> {
+  removeUser(id: string): Promise<{ affected?: number }> {
     return this.userRepository.delete(id);
   }
 }
