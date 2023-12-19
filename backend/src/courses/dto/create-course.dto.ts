@@ -1,7 +1,14 @@
+import { IsNotEmpty, MinLength, MaxLength } from 'class-validator';
+
 export class CreateCourseDto {
+  @IsNotEmpty()
+  @MinLength(10)
+  @MaxLength(50)
   title: string;
-  pdf_path: string;
+
+  @IsNotEmpty()
   user_id: string;
-  status: string;
+
+  @IsNotEmpty()
   level: string;
 }

@@ -9,6 +9,7 @@ import { UserModule } from './users/user.module';
 import { Users } from './users/entities/user.entity';
 
 import dotenv from 'dotenv';
+import { Course } from './courses/entities/course.entity';
 
 dotenv.config();
 
@@ -21,7 +22,8 @@ dotenv.config();
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [Users],
+      entities: [Users, Course],
+      synchronize: true,
     }),
     AuthModule,
     UserModule,

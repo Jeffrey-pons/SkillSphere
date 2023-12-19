@@ -1,17 +1,29 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { FileStatus } from '../enum/file-status';
 
 @Entity()
 export class Course {
   @PrimaryGeneratedColumn()
-  id: number;
+  public id: number;
+
   @Column({ nullable: false })
-  title: string;
+  public title: string;
+
   @Column({ nullable: false })
-  pdf_path: string;
-  @Column({ nullable: false, enum: ['Admin', 'Teacher', 'Student'] })
-  status: string;
+  public user_id: number;
+
+  @Column({ nullable: false, enum: FileStatus })
+  public status: string;
+
   @Column({ nullable: false })
-  views: number;
+  public views: number;
+
   @Column({ nullable: false })
-  level: string;
+  public level: string;
+
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP(6)' })
+  public created_at: Date;
+
+  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP(6)', onUpdate: 'CURRENT_TIMESTAMP(6)' })
+  public updated_at: Date;
 }
