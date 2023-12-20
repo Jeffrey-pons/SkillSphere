@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinTable,
   ManyToMany,
   ManyToOne,
   UpdateDateColumn,
@@ -15,7 +14,7 @@ import { Category } from '../../categories/entities/category.entity';
 
 @Entity()
 export class Course {
-  @Column({ primary: true, generated: 'uuid' })
+  @Column({ primary: true, generated: 'uuid', type: 'uuid' })
   public id: string;
 
   @Column({ nullable: false })
@@ -25,7 +24,7 @@ export class Course {
   @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
   public user: Users;
 
-  @Column({ type: 'uuid', nullable: false })
+  @Column({ type: 'uuid', nullable: false, generated: 'uuid' })
   public userId: string;
 
   @Column({ nullable: false, enum: FileStatus, default: FileStatus.EN_ATTENTE })
@@ -43,8 +42,7 @@ export class Course {
   })
   public created_at: Date;
 
-  @ManyToMany(() => Category)
-  @JoinTable()
+  @ManyToMany(() => Category, (category: Category) => category.courses)
   categories: Category[];
 
   @UpdateDateColumn({
