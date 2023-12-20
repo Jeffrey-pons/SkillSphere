@@ -5,44 +5,39 @@ import {
   Matches,
   MinLength,
 } from 'class-validator';
-import {Role} from "../enum/roles";
 import {Level} from "../../_shared/enum/level";
 import {Status} from "../enum/status";
 
 const passwordRegEx =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*d)(?=.*[@$!%*?&.])[A-Za-zd@$!%*?&.]{8,20}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
 
 export class CreateUserDto {
   @IsNotEmpty()
   @MinLength(3, { message: 'Username must have atleast 3 characters.' })
-  @IsAlphanumeric(null, {
+  @IsAlphanumeric('fr-FR', {
     message: 'Username does not allow other than alpha numeric chars.',
   })
-  username: string;
+  public username: string;
 
   @IsNotEmpty()
-  @IsEmail(null, { message: 'Please provide valid Email.' })
-  mail: string;
+  @IsEmail({}, { message: 'Please provide valid Email.' })
+  public mail: string;
 
   @IsNotEmpty()
   @Matches(passwordRegEx, {
-    message: `Password must contain Minimum 8 and maximum 20 characters, 
-      at least one uppercase letter, 
-      one lowercase letter,
-      one number and 
-      one special character`,
+    message: 'Password must contain minimum 8 and maximum 20 characters, ' +
+      'at least one uppercase letter, ' +
+      'one lowercase letter, ' +
+      'one number and ' +
+      'one special character',
   })
-  password: string;
+  public password: string;
 
-  @IsNotEmpty()
-  @IsEnum(Role)
-  role: string;
-
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Please select your study level.' })
   @IsEnum(Level)
-  level: string;
+  public level: Level;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Please select your status.' })
   @IsEnum(Status)
-  status: string;
+  public status: Status;
 }
