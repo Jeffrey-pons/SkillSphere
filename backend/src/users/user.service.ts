@@ -1,26 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Users } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { EditMeDto } from './dto/edit-me.dto';
 
 @Injectable()
 export class UserService {
-  /**
-   * Here, we have used data mapper approch for this tutorial that is why we
-   * injecting repository here. Another approch can be Active records.
-   */
   constructor(
     @InjectRepository(Users) private readonly userRepository: Repository<Users>,
   ) {}
 
-  /**
-   * this is function is used to create User in User Entity.
-   * @param createUserDto this will type of createUserDto in which
-   * we have defined what are the keys we are expecting from body
-   * @returns promise of user
-   */
   async createUser(createUserDto: CreateUserDto): Promise<Omit<Users, 'password'>> {
     const salt: string = await bcrypt.genSalt();
     const hash: string = await bcrypt.hash(createUserDto.password, salt);
@@ -40,10 +31,6 @@ export class UserService {
     });
   }
 
-  /**
-   * this function is used to get all the user's list
-   * @returns promise of array of users
-   */
   async findAllUser(): Promise<Users[]> {
     const users: Users[] = await this.userRepository.find();
 
@@ -53,26 +40,18 @@ export class UserService {
     })
   }
 
-  /**
-   * this function used to get data of use whose id is passed in parameter
-   * @param id is type of number, which represent the id of user.
-   * @returns promise of user
-   */
   async findOneById(id: string): Promise<Users> {
-    const user: Users = await this.userRepository.findOneBy({ id });
-    delete user.password;
-    return user;
+    return this.userRepository.findOneBy({ id });
   }
 
   findOneByMail(mail: string): Promise<Users> {
     return this.userRepository.findOneBy({ mail });
   }
 
-  /**
-   * this function is used to remove or delete user from database.
-   * @param id is the type of number, which represent id of user
-   * @returns nuber of rows deleted or affected
-   */
+  editUser(userId: string, userData: Partial<Users>): Promise<UpdateResult> {
+    return this.userRepository.update({ id: userId }, userData);
+  }
+
   removeUser(id: string): Promise<{ affected?: number }> {
     return this.userRepository.delete(id);
   }
