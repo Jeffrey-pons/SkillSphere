@@ -14,13 +14,13 @@ export class Users {
   @Column({ type: 'varchar', length: 320, unique: true })
   public mail: string;
 
-  @Column({ type: 'enum', enum: Role })
+  @Column({ type: 'enum', enum: Role, default: Role.USER })
   public role: string;
 
-  @Column({ type: 'enum', enum: Status })
+  @Column({ type: 'enum', enum: Status, nullable: true })
   public status: string;
 
-  @Column({ type: 'enum', enum: Level })
+  @Column({ type: 'enum', enum: Level, nullable: true })
   public level: string;
 
   @Column({ type: 'varchar' })

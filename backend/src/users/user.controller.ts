@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Request,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -28,6 +29,13 @@ export class UserController {
   @Get()
   findAll(): Promise<Users[]> {
     return this.userService.findAllUser();
+  }
+  
+  @UseGuards(AuthGuard)
+  @Get('me')
+  findMe(@Request() req) {
+    const user = req.user;
+    return this.userService.findOneById(user.id);
   }
 
   @HttpCode(HttpStatus.OK)

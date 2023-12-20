@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -21,47 +21,36 @@ export class UserService {
    * we have defined what are the keys we are expecting from body
    * @returns promise of user
    */
-  async createUser(createUserDto: CreateUserDto): Promise<Users> {
+  async createUser(createUserDto: CreateUserDto): Promise<Omit<Users, 'password'>> {
     const salt: string = await bcrypt.genSalt();
     const hash: string = await bcrypt.hash(createUserDto.password, salt);
+    const date: Date = new Date();
+
     const user: Users = new Users();
     user.username = createUserDto.username;
     user.mail = createUserDto.mail;
     user.password = hash;
-    user.role = createUserDto.role;
+    user.last_connexion = date;
     user.status = createUserDto.status;
     user.level = createUserDto.level;
 
-    // user.created_at = date;
-    user.last_connexion = new Date();
-    try {
-      return await this.userRepository.save(user);
-    } catch (e) {
-      if (e.code === '23505') {
-        const detail = e.detail;
-        const columnNameMatch = /Key \(([^)]+)\)/.exec(detail);
-        if (columnNameMatch && columnNameMatch[1]) {
-          const columnName = columnNameMatch[1];
-          throw new ConflictException(
-            `La valeur dans la colonne '${columnName}' existe déjà.`,
-          );
-        } else {
-          throw new ConflictException(
-            'Une erreur de duplication est survenue.',
-          );
-        }
-      } else {
-        throw e;
-      }
-    }
+    return this.userRepository.save(user).then((user: Users) => {
+      delete user.password;
+      return user;
+    });
   }
 
   /**
    * this function is used to get all the user's list
    * @returns promise of array of users
    */
-  findAllUser(): Promise<Users[]> {
-    return this.userRepository.find();
+  async findAllUser(): Promise<Users[]> {
+    const users: Users[] = await this.userRepository.find();
+
+    return users.map(user => {
+      delete user.password;
+      return user;
+    })
   }
 
   /**
@@ -69,8 +58,10 @@ export class UserService {
    * @param id is type of number, which represent the id of user.
    * @returns promise of user
    */
-  findOneById(id: string): Promise<Users> {
-    return this.userRepository.findOneBy({ id });
+  async findOneById(id: string): Promise<Users> {
+    const user: Users = await this.userRepository.findOneBy({ id });
+    delete user.password;
+    return user;
   }
 
   findOneByMail(mail: string): Promise<Users> {
