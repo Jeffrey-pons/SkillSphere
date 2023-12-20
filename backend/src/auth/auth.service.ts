@@ -13,8 +13,9 @@ export class AuthService {
 
   async signIn(mail: string, pass: string) {
     const user: Users = await this.userService.findOneByMail(mail);
-    const isMatch: boolean = await bcrypt.compare(pass, user.password);
-    if (!isMatch) {
+    try {
+      await bcrypt.compare(pass, user.password);
+    } catch (err) {
       throw new UnauthorizedException();
     }
     const payload = {

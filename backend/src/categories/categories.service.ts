@@ -4,6 +4,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import {Course} from "../courses/entities/course.entity";
 
 @Injectable()
 export class CategoriesService {
@@ -33,5 +34,14 @@ export class CategoriesService {
 
   remove(id: number): Promise<DeleteResult> {
     return this.categoriesRepository.delete(id);
+  }
+
+  async findByCriteria(criteria: string): Promise<Category[]> {
+    const categories: Category[] = await this.findAll()
+    return categories.filter((category: Category) => {
+      return (
+        !criteria || category.name.toLowerCase().includes(criteria.toLowerCase())
+      )
+    })
   }
 }

@@ -1,7 +1,8 @@
 import { Injectable, UseGuards } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { Category } from '../categories/entities/category.entity';
 import { Course } from './entities/course.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { writeFileSync, closeSync, openSync, mkdir } from 'fs';
@@ -17,8 +18,8 @@ export class CoursesService {
 
   create(createCourseDto: CreateCourseDto) {
     const course = new Course();
-  
-    course.title = createCourseDto.title
+
+    course.title = createCourseDto.title;
     course.user_id = 0;
     course.status = 'Pending';
     course.views = 0;
@@ -27,20 +28,32 @@ export class CoursesService {
     return this.coursesRepository.create(course);
   }
 
-  findAll() {
+  findAll(): Promise<Course[]> {
     return this.coursesRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} course`;
+  findOne(id: number): Promise<Course> {
+    return this.coursesRepository.findOneBy({ id });
   }
 
-  update(id: number, updateCourseDto: UpdateCourseDto) {
-    return `This action updates a #${id} course`;
+  update(id: number, updateCourseDto: UpdateCourseDto): Promise<UpdateResult> {
+    return this.coursesRepository.update(id, updateCourseDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} course`;
+  remove(id: number): Promise<DeleteResult> {
+    return this.coursesRepository.delete(id);
+  }
+
+  async findByCriteria(criteria: string): Promise<Course[]> {
+    const courses: Course[] = await this.findAll();
+    return courses.filter((course: Course) => {
+      return (
+        (!criteria ||
+          course.title.toLowerCase().includes(criteria.toLowerCase())) &&
+        (!criteria ||
+          course.level.toLowerCase().includes(criteria.toLowerCase()))
+      );
+    });
   }
 
   write_file(file_path: string, file: Express.Multer.File) {
