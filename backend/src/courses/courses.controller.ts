@@ -17,6 +17,7 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Course } from './entities/course.entity';
 
 @Controller('courses')
 export class CoursesController {
@@ -64,5 +65,10 @@ export class CoursesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.coursesService.remove(+id);
+  }
+
+  @Get(':criteria')
+  findByCriteria(@Param('criteria') criteria: string): Promise<Course[]> {
+    return this.coursesService.findByCriteria(criteria)
   }
 }

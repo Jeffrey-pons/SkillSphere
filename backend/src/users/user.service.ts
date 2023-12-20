@@ -31,6 +31,8 @@ export class UserService {
     user.mail = createUserDto.mail;
     user.password = hash;
     user.last_connexion = date;
+    user.status = createUserDto.status;
+    user.level = createUserDto.level;
 
     return this.userRepository.save(user).then((user: Users) => {
       delete user.password;
