@@ -1,10 +1,9 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryFailedError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Users } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import { log } from 'console';
 
 @Injectable()
 export class UserService {
@@ -29,27 +28,32 @@ export class UserService {
     user.username = createUserDto.username;
     user.mail = createUserDto.mail;
     user.password = hash;
-
-    const date: string = new Date().toDateString();
+    user.role = createUserDto.role;
+    user.status = createUserDto.status;
+    user.level = createUserDto.level;
 
     // user.created_at = date;
-    user.last_connexion = date;
+    user.last_connexion = new Date();
     try {
       return await this.userRepository.save(user);
-    } catch(e) {
-        if(e.code === '23505') {
-          const detail = e.detail;
-          const columnNameMatch = /Key \(([^)]+)\)/.exec(detail);       
-          if (columnNameMatch && columnNameMatch[1]) {
-            const columnName = columnNameMatch[1];
-            throw new ConflictException(`La valeur dans la colonne '${columnName}' existe déjà.`);
-          } else {
-            throw new ConflictException('Une erreur de duplication est survenue.');
-          }
+    } catch (e) {
+      if (e.code === '23505') {
+        const detail = e.detail;
+        const columnNameMatch = /Key \(([^)]+)\)/.exec(detail);
+        if (columnNameMatch && columnNameMatch[1]) {
+          const columnName = columnNameMatch[1];
+          throw new ConflictException(
+            `La valeur dans la colonne '${columnName}' existe déjà.`,
+          );
         } else {
-          throw e;
+          throw new ConflictException(
+            'Une erreur de duplication est survenue.',
+          );
         }
+      } else {
+        throw e;
       }
+    }
   }
 
   /**
