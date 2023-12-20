@@ -30,7 +30,9 @@ export class UserController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  create(@Body() createUserDto: CreateUserDto): Promise<Omit<Users, 'password'>> {
+  create(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<Omit<Users, 'password'>> {
     return this.userService.createUser(createUserDto);
   }
 
@@ -39,7 +41,7 @@ export class UserController {
   findAll(): Promise<Users[]> {
     return this.userService.findAllUser();
   }
-  
+
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @Get('me')
@@ -69,7 +71,10 @@ export class UserController {
   @UseGuards(AuthGuard, RolesGuard)
   @Role(Roles.ADMIN)
   @Patch(':id')
-  async editUser(@Param('id') id: string, @Body() editUserDto: EditUserDto): Promise<UpdateResult> {
+  async editUser(
+    @Param('id') id: string,
+    @Body() editUserDto: EditUserDto,
+  ): Promise<UpdateResult> {
     const user: Users = await this.userService.findOneById(id);
 
     if (user.role != Roles.ADMIN) {
@@ -80,14 +85,17 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @Patch('me/password')
-  async editPassword(@Body() editPasswordDto: EditPasswordDto, @Request() req): Promise<UpdateResult> {
+  async editPassword(
+    @Body() editPasswordDto: EditPasswordDto,
+    @Request() req,
+  ): Promise<UpdateResult> {
     const userId = req.user.sub;
     const user = await this.userService.findOneById(userId);
-    if (!await bcrypt.compare(editPasswordDto.old_password, user.password)) {
-      return
+    if (!(await bcrypt.compare(editPasswordDto.old_password, user.password))) {
+      return;
     }
-    
-    const newUser = { 'password': editPasswordDto.new_password }
+
+    const newUser = { password: editPasswordDto.new_password };
     return this.userService.editUser(userId, newUser);
   }
 

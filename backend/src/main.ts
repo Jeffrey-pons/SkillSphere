@@ -19,7 +19,7 @@ async function bootstrap() {
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
-    })
+    }),
   );
   await app.listen(port, host);
 }

@@ -1,7 +1,8 @@
-import {Column, Entity, OneToMany} from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { Level } from 'src/_shared/enum/level';
 import { Status } from '../enum/status';
-import {Course} from "../../courses/entities/course.entity";
+import { Course } from '../../courses/entities/course.entity';
+import { Roles } from '../enum/roles';
 
 @Entity()
 export class Users {
@@ -29,8 +30,8 @@ export class Users {
   @Column({ type: 'varchar' })
   public password: string;
 
-  @OneToMany(() => Course, (cours) => cours.user_id)
-  public courses: Course[]
+  @OneToMany(() => Course, (cours) => cours.user)
+  public courses: Course[];
 
   @Column({
     type: 'timestamp',
