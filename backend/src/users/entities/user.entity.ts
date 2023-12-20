@@ -1,5 +1,4 @@
 import {Column, Entity, OneToMany} from 'typeorm';
-import { Role } from '../enum/roles';
 import { Level } from 'src/_shared/enum/level';
 import { Status } from '../enum/status';
 import {Course} from "../../courses/entities/course.entity";
@@ -15,11 +14,17 @@ export class Users {
   @Column({ type: 'varchar', length: 320, unique: true })
   public mail: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  public description: string;
+
+  @Column({ type: 'enum', enum: Roles, default: Roles.USER })
+  public role: Roles;
+
   @Column({ type: 'enum', enum: Status, nullable: true })
-  public status: string;
+  public status: Status;
 
   @Column({ type: 'enum', enum: Level, nullable: true })
-  public level: string;
+  public level: Level;
 
   @Column({ type: 'varchar' })
   public password: string;
