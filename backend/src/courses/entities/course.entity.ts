@@ -1,5 +1,16 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from 'typeorm';
 import { FileStatus } from '../enum/file-status';
+import {Level} from "../../_shared/enum/level";
+import {Category} from "../../categories/entities/category.entity";
+import {Users} from "../../users/entities/user.entity";
 
 @Entity()
 export class Course {
@@ -9,17 +20,20 @@ export class Course {
   @Column({ nullable: false })
   public title: string;
 
-  @Column({ nullable: false })
-  public user_id: number;
+  @ManyToOne(() => Users, (user) => user.courses)
+  public user: Users;
 
-  @Column({ nullable: false, enum: FileStatus })
+  @Column({ nullable: false, enum: FileStatus, default: FileStatus.EN_ATTENTE })
   public status: string;
 
   @Column({ nullable: false })
   public views: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, enum: Level })
   public level: string;
+
+  @ManyToOne(() => Category, (category) => category.courses)
+  public category: Category
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP(6)' })
   public created_at: Date;

@@ -1,7 +1,8 @@
-import { Column, Entity } from 'typeorm';
+import {Column, Entity, OneToMany} from 'typeorm';
 import { Role } from '../enum/roles';
 import { Level } from 'src/_shared/enum/level';
 import { Status } from '../enum/status';
+import {Course} from "../../courses/entities/course.entity";
 
 @Entity()
 export class Users {
@@ -14,9 +15,6 @@ export class Users {
   @Column({ type: 'varchar', length: 320, unique: true })
   public mail: string;
 
-  @Column({ type: 'enum', enum: Role, default: Role.USER })
-  public role: string;
-
   @Column({ type: 'enum', enum: Status, nullable: true })
   public status: string;
 
@@ -25,6 +23,9 @@ export class Users {
 
   @Column({ type: 'varchar' })
   public password: string;
+
+  @OneToMany(() => Course, (cours) => cours.user_id)
+  public courses: Course[]
 
   @Column({
     type: 'timestamp',

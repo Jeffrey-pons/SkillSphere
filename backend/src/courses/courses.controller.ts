@@ -3,13 +3,13 @@ import {
   Get,
   Post,
   Body,
+  Patch,
   Param,
   Delete,
-  UploadedFile,
-  UseInterceptors,
-  ParseFilePipeBuilder,
-  UseGuards,
   Put,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile, ParseFilePipeBuilder, Request
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -37,12 +37,15 @@ export class CoursesController {
           fileIsRequired: true,
         }),
     )
-    file: Express.Multer.File,
+      file: Express.Multer.File,
+    @Request() req
   ) {
-    const file_path = `/home/node/files/${0}/`;
+    const course = this.coursesService.create(createCourseDto);
+    const user = req.user;
 
+    const file_path = `/home/node/files/${user.sub}/`;
     this.coursesService.write_file(file_path, file);
-    return this.coursesService.create(createCourseDto);
+    return course;
   }
 
   @Get()
