@@ -5,10 +5,12 @@ import { JoinTable } from 'typeorm';
 @Entity()
 export class Category {
   @Column({ primary: true, generated: 'uuid', type: 'uuid' })
-  id: string;
+  public id: string;
+
   @Column({ nullable: false, unique: true })
-  name: string;
+  public name: string;
+
   @ManyToMany(() => Course, (course: Course) => course.categories)
-  @JoinTable()
-  courses: Course[];
+  @JoinTable({ name: 'course_category' })
+  public courses: Course[];
 }

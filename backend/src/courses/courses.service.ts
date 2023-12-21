@@ -2,45 +2,63 @@ import { Injectable, UseGuards } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
-import { Category } from '../categories/entities/category.entity';
 import { Course } from './entities/course.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { writeFileSync, closeSync, openSync, mkdir } from 'fs';
+import { writeFileSync, closeSync, openSync, mkdir, readFileSync } from 'fs';
 import { Express } from 'express';
-import { AuthGuard } from 'src/auth/auth.guard';
-import {Users} from "../users/entities/user.entity";
-import {FileStatus} from "./enum/file-status";
+import { Category } from 'src/categories/entities/category.entity';
+import { CategoriesService } from 'src/categories/categories.service';
 
 @Injectable()
 export class CoursesService {
   constructor(
     @InjectRepository(Course)
     private coursesRepository: Repository<Course>,
-    @InjectRepository(Users)
-    private userRepository: Repository<Users>,
+    private categoriesService: CategoriesService,
   ) {}
 
-  async create(createCourseDto: CreateCourseDto): Promise<Course> {
-    const course: Course = new Course();
-    const user: Users = await this.userRepository.findOneBy({
-      id: createCourseDto.user_id,
+  async create(userId: string, createCourseDto: CreateCourseDto, file: Express.Multer.File): Promise<Course> {
+    const categogies_promise: Promise<Category>[] = createCourseDto.categories.map(async categoryId => {
+      return this.categoriesService.findOne(categoryId)
     });
+    const categories: Category[] = await Promise.all(categogies_promise);
+  
+    const course = {
+      ...createCourseDto,
+      userId,
+      categories,
+    }
 
-    course.title = createCourseDto.title;
-    course.user = user;
-    course.status = FileStatus.EN_ATTENTE;
-    course.views = 0;
-    course.level = createCourseDto.level;
+    let newCourse = await this.coursesRepository.create(course);
 
-    return this.coursesRepository.create(course);
+    const filePath = `/home/node/files/${userId}/`;
+    this.createFolder(filePath);
+    
+    newCourse = await this.coursesRepository.save(newCourse);
+    const fileName = `${newCourse.id}.pdf`
+    this.writeFile(filePath + fileName, file);
+    
+    return newCourse;
   }
 
   findAll(): Promise<Course[]> {
     return this.coursesRepository.find();
   }
 
-  findOne(id: string): Promise<Course> {
-    return this.coursesRepository.findOneBy({ id });
+  async findOne(id: string): Promise<Course & { 'file': string }> {
+    const datas: Course = await this.coursesRepository.findOne({
+      where: { id: id },
+      relations: [
+        'categories',
+      ]
+    });
+    const filePath = `/home/node/files/${datas.userId}/${datas.id}.pdf`;
+
+    const file: string = this.readFileBase64(filePath);
+    return {
+      ...datas,
+      file: file,
+    };
   }
 
   update(id: string, updateCourseDto: UpdateCourseDto): Promise<UpdateResult> {
@@ -63,11 +81,19 @@ export class CoursesService {
     });
   }
 
-  write_file(file_path: string, file: Express.Multer.File) {
-    mkdir(file_path, { recursive: true }, (err) => {
+  writeFile(filePath: string, file: Express.Multer.File) {
+    closeSync(openSync(filePath, 'w'));
+    writeFileSync(filePath, file.buffer);
+  }
+
+  createFolder(path: string) {
+    mkdir(path, { recursive: true }, (err) => {
       if (err) throw err;
     });
-    closeSync(openSync(file_path + file.originalname, 'w'));
-    writeFileSync(file_path + file.originalname, file.buffer);
+  }
+
+  readFileBase64(filePath: string): string {
+    const file: string = readFileSync(filePath, 'utf-8');
+    return Buffer.from(file, 'utf-8').toString('base64');
   }
 }

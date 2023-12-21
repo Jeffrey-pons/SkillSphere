@@ -6,6 +6,7 @@ import {
   ManyToOne,
   UpdateDateColumn,
   JoinColumn,
+  JoinTable,
 } from 'typeorm';
 import { FileStatus } from '../enum/file-status';
 import { Level } from '../../_shared/enum/level';
@@ -30,7 +31,7 @@ export class Course {
   @Column({ nullable: false, enum: FileStatus, default: FileStatus.EN_ATTENTE })
   public status: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: 0 })
   public views: number;
 
   @Column({ nullable: false, enum: Level })
@@ -43,7 +44,8 @@ export class Course {
   public created_at: Date;
 
   @ManyToMany(() => Category, (category: Category) => category.courses)
-  categories: Category[];
+  @JoinTable({ name: 'course_category' })
+  public categories: Category[];
 
   @UpdateDateColumn({
     type: 'timestamp',

@@ -21,7 +21,12 @@ export class CategoriesService {
   }
 
   findOne(id: string): Promise<Category> {
-    return this.categoriesRepository.findOne({ where: { id: id } });
+    return this.categoriesRepository.findOne({
+      where: { id: id },
+      relations: [
+        'courses',
+      ]
+    });
   }
 
   update(
