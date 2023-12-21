@@ -9,7 +9,9 @@ import {
   Put,
   UseGuards,
   UseInterceptors,
-  UploadedFile, ParseFilePipeBuilder, Request
+  UploadedFile,
+  ParseFilePipeBuilder,
+  Request,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -37,8 +39,8 @@ export class CoursesController {
           fileIsRequired: true,
         }),
     )
-      file: Express.Multer.File,
-    @Request() req
+    file: Express.Multer.File,
+    @Request() req,
   ) {
     const course = this.coursesService.create(createCourseDto);
     const user = req.user;
@@ -55,23 +57,23 @@ export class CoursesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.coursesService.findOne(+id);
+    return this.coursesService.findOne(id);
   }
 
   @UseGuards(AuthGuard)
   @Put(':id')
   update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
-    return this.coursesService.update(+id, updateCourseDto);
+    return this.coursesService.update(id, updateCourseDto);
   }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.coursesService.remove(+id);
+    return this.coursesService.remove(id);
   }
 
   @Get(':criteria')
   findByCriteria(@Param('criteria') criteria: string): Promise<Course[]> {
-    return this.coursesService.findByCriteria(criteria)
+    return this.coursesService.findByCriteria(criteria);
   }
 }

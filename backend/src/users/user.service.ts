@@ -12,7 +12,9 @@ export class UserService {
     @InjectRepository(Users) private readonly userRepository: Repository<Users>,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<Omit<Users, 'password'>> {
+  async createUser(
+    createUserDto: CreateUserDto,
+  ): Promise<Omit<Users, 'password'>> {
     const salt: string = await bcrypt.genSalt();
     const hash: string = await bcrypt.hash(createUserDto.password, salt);
     const date: Date = new Date();
@@ -34,10 +36,10 @@ export class UserService {
   async findAllUser(): Promise<Users[]> {
     const users: Users[] = await this.userRepository.find();
 
-    return users.map(user => {
+    return users.map((user) => {
       delete user.password;
       return user;
-    })
+    });
   }
 
   async findOneById(id: string): Promise<Users> {

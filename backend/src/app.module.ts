@@ -10,6 +10,7 @@ import { Users } from './users/entities/user.entity';
 
 import dotenv from 'dotenv';
 import { Course } from './courses/entities/course.entity';
+import {Category} from "./categories/entities/category.entity";
 
 dotenv.config();
 
@@ -22,7 +23,8 @@ dotenv.config();
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [Users, Course],
+      entities: [Users, Course, Category],
+      // dropSchema: true,
       synchronize: true,
     }),
     AuthModule,

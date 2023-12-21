@@ -1,15 +1,16 @@
 import {
   IsAlphanumeric,
-  IsEmail, IsEnum,
+  IsEmail,
+  IsEnum,
   IsNotEmpty,
   Matches,
   MinLength,
 } from 'class-validator';
-import {Level} from "../../_shared/enum/level";
-import {Status} from "../enum/status";
+import { Level } from '../../_shared/enum/level';
+import { Status } from '../enum/status';
 
 const passwordRegEx =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?.&])[A-Za-z\d@$!%*?.&]{8,20}$/;
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -25,7 +26,8 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @Matches(passwordRegEx, {
-    message: 'Password must contain minimum 8 and maximum 20 characters, ' +
+    message:
+      'Password must contain minimum 8 and maximum 20 characters, ' +
       'at least one uppercase letter, ' +
       'one lowercase letter, ' +
       'one number and ' +

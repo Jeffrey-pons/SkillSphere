@@ -8,20 +8,27 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { writeFileSync, closeSync, openSync, mkdir } from 'fs';
 import { Express } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
+import {Users} from "../users/entities/user.entity";
+import {FileStatus} from "./enum/file-status";
 
 @Injectable()
 export class CoursesService {
   constructor(
     @InjectRepository(Course)
     private coursesRepository: Repository<Course>,
+    @InjectRepository(Users)
+    private userRepository: Repository<Users>,
   ) {}
 
-  create(createCourseDto: CreateCourseDto) {
-    const course = new Course();
+  async create(createCourseDto: CreateCourseDto): Promise<Course> {
+    const course: Course = new Course();
+    const user: Users = await this.userRepository.findOneBy({
+      id: createCourseDto.user_id,
+    });
 
     course.title = createCourseDto.title;
-    course.user_id = 0;
-    course.status = 'Pending';
+    course.user = user;
+    course.status = FileStatus.EN_ATTENTE;
     course.views = 0;
     course.level = createCourseDto.level;
 
@@ -32,15 +39,15 @@ export class CoursesService {
     return this.coursesRepository.find();
   }
 
-  findOne(id: number): Promise<Course> {
+  findOne(id: string): Promise<Course> {
     return this.coursesRepository.findOneBy({ id });
   }
 
-  update(id: number, updateCourseDto: UpdateCourseDto): Promise<UpdateResult> {
+  update(id: string, updateCourseDto: UpdateCourseDto): Promise<UpdateResult> {
     return this.coursesRepository.update(id, updateCourseDto);
   }
 
-  remove(id: number): Promise<DeleteResult> {
+  remove(id: string): Promise<DeleteResult> {
     return this.coursesRepository.delete(id);
   }
 
