@@ -1,6 +1,5 @@
 import { IsNotEmpty, MinLength, MaxLength, IsEnum, IsArray } from 'class-validator';
 import { Level } from 'src/_shared/enum/level';
-import { Category } from 'src/categories/entities/category.entity';
 
 export class CreateCourseDto {
   @IsNotEmpty()
