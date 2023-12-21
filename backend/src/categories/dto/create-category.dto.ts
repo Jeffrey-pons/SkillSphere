@@ -1,3 +1,7 @@
+import { IsAlphanumeric, IsNotEmpty } from "class-validator";
+
 export class CreateCategoryDto {
-  name: string
+  @IsNotEmpty()
+  @IsAlphanumeric('fr-FR')
+  public name: string
 }
