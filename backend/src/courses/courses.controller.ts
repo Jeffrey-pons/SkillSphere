@@ -12,6 +12,8 @@ import {
   UploadedFile,
   ParseFilePipeBuilder,
   Request,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -20,11 +22,15 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Course } from './entities/course.entity';
+import { CategoriesService } from 'src/categories/categories.service';
 
 @Controller('courses')
 export class CoursesController {
-  constructor(private readonly coursesService: CoursesService) {}
+  constructor(
+    private readonly coursesService: CoursesService,
+  ) {}
 
+  @HttpCode(HttpStatus.CREATED)
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   @Post()
@@ -41,13 +47,9 @@ export class CoursesController {
     )
     file: Express.Multer.File,
     @Request() req,
-  ) {
-    const course = this.coursesService.create(createCourseDto);
+  ): Promise<Course> {
     const user = req.user;
-
-    const file_path = `/home/node/files/${user.sub}/`;
-    this.coursesService.write_file(file_path, file);
-    return course;
+    return this.coursesService.create(user.sub, createCourseDto, file);
   }
 
   @Get()

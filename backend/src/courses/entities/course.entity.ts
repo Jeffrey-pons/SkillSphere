@@ -30,7 +30,7 @@ export class Course {
   @Column({ nullable: false, enum: FileStatus, default: FileStatus.EN_ATTENTE })
   public status: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: 0 })
   public views: number;
 
   @Column({ nullable: false, enum: Level })

@@ -4,7 +4,6 @@ import { Repository, UpdateResult } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Users } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import { EditMeDto } from './dto/edit-me.dto';
 import { Roles } from './enum/roles';
 
 @Injectable()
