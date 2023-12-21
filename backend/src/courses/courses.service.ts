@@ -8,6 +8,7 @@ import { writeFileSync, closeSync, openSync, mkdir, readFileSync } from 'fs';
 import { Express } from 'express';
 import { Category } from 'src/categories/entities/category.entity';
 import { CategoriesService } from 'src/categories/categories.service';
+import { FileStatus } from './enum/file-status';
 
 @Injectable()
 export class CoursesService {
@@ -79,6 +80,10 @@ export class CoursesService {
           course.level.toLowerCase().includes(criteria.toLowerCase()))
       );
     });
+  }
+
+  updateStatus(id: string, newStatus: FileStatus): Promise<UpdateResult> {
+    return this.coursesRepository.update(id, { status: newStatus });
   }
 
   writeFile(filePath: string, file: Express.Multer.File) {
