@@ -18,6 +18,5 @@ export class CreateCourseDto {
   public level: Level;
 
   @IsNotEmpty()
-  @IsArray()
-  public categories: string[];
+  public categoryId: string;
 }

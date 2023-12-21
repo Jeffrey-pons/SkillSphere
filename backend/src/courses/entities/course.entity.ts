@@ -43,9 +43,12 @@ export class Course {
   })
   public created_at: Date;
 
-  @ManyToMany(() => Category, (category: Category) => category.courses)
-  @JoinTable({ name: 'course_category' })
-  public categories: Category[];
+  @ManyToOne(() => Category, (category: Category) => category.courses)
+  @JoinColumn({ name: 'categoryId', referencedColumnName: 'id' })
+  public category: Category;
+
+  @Column({ type: 'uuid', nullable: false, generated: 'uuid' })
+  public categoryId: string;
 
   @UpdateDateColumn({
     type: 'timestamp',

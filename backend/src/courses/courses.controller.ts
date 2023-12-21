@@ -26,9 +26,7 @@ import { CategoriesService } from 'src/categories/categories.service';
 
 @Controller('courses')
 export class CoursesController {
-  constructor(
-    private readonly coursesService: CoursesService,
-  ) {}
+  constructor(private readonly coursesService: CoursesService) {}
 
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(AuthGuard)
@@ -49,7 +47,16 @@ export class CoursesController {
     @Request() req,
   ): Promise<Course> {
     const user = req.user;
-    return this.coursesService.create(user.sub, createCourseDto, file);
+    return this.coursesService.create(
+      user.sub,
+      {
+        title: req.body.title,
+        description: req.body.description,
+        level: req.body.level,
+        categoryId: req.body.categoryId,
+      },
+      file,
+    );
   }
 
   @Get()

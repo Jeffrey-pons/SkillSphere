@@ -1,4 +1,4 @@
-import { Injectable, UseGuards } from '@nestjs/common';
+import {Injectable, NotFoundException, UseGuards} from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
@@ -8,6 +8,7 @@ import { writeFileSync, closeSync, openSync, mkdir, readFileSync } from 'fs';
 import { Express } from 'express';
 import { Category } from 'src/categories/entities/category.entity';
 import { CategoriesService } from 'src/categories/categories.service';
+import {using} from "rxjs";
 
 @Injectable()
 export class CoursesService {
@@ -17,27 +18,25 @@ export class CoursesService {
     private categoriesService: CategoriesService,
   ) {}
 
-  async create(userId: string, createCourseDto: CreateCourseDto, file: Express.Multer.File): Promise<Course> {
-    const categogies_promise: Promise<Category>[] = createCourseDto.categories.map(async categoryId => {
-      return this.categoriesService.findOne(categoryId)
-    });
-    const categories: Category[] = await Promise.all(categogies_promise);
-  
+  async create(
+    userId: string,
+    createCourseDto: CreateCourseDto,
+    file: Express.Multer.File,
+  ): Promise<Course> {
     const course = {
       ...createCourseDto,
       userId,
-      categories,
-    }
+    };
 
-    let newCourse = await this.coursesRepository.create(course);
+    let newCourse = this.coursesRepository.create(course);
 
     const filePath = `/home/node/files/${userId}/`;
     this.createFolder(filePath);
-    
+
     newCourse = await this.coursesRepository.save(newCourse);
-    const fileName = `${newCourse.id}.pdf`
+    const fileName = `${newCourse.id}.pdf`;
     this.writeFile(filePath + fileName, file);
-    
+
     return newCourse;
   }
 
@@ -45,12 +44,10 @@ export class CoursesService {
     return this.coursesRepository.find();
   }
 
-  async findOne(id: string): Promise<Course & { 'file': string }> {
+  async findOne(id: string): Promise<Course & { file: string }> {
     const datas: Course = await this.coursesRepository.findOne({
       where: { id: id },
-      relations: [
-        'categories',
-      ]
+      relations: ['category'],
     });
     const filePath = `/home/node/files/${datas.userId}/${datas.id}.pdf`;
 
