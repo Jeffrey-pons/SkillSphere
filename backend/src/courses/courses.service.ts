@@ -4,7 +4,7 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { writeFileSync, closeSync, openSync, mkdir } from 'fs';
+import { writeFileSync, closeSync, openSync, mkdir, readFileSync } from 'fs';
 import { Express } from 'express';
 import { Category } from 'src/categories/entities/category.entity';
 import { CategoriesService } from 'src/categories/categories.service';
@@ -37,6 +37,7 @@ export class CoursesService {
     newCourse = await this.coursesRepository.save(newCourse);
     const fileName = `${newCourse.id}.pdf`
     this.writeFile(filePath + fileName, file);
+    
     return newCourse;
   }
 
@@ -44,8 +45,20 @@ export class CoursesService {
     return this.coursesRepository.find();
   }
 
-  findOne(id: string): Promise<Course> {
-    return this.coursesRepository.findOneBy({ id });
+  async findOne(id: string): Promise<Course & { 'file': string }> {
+    const datas: Course = await this.coursesRepository.findOne({
+      where: { id: id },
+      relations: [
+        'categories',
+      ]
+    });
+    const filePath = `/home/node/files/${datas.userId}/${datas.id}.pdf`;
+
+    const file: string = this.readFileBase64(filePath);
+    return {
+      ...datas,
+      file: file,
+    };
   }
 
   update(id: string, updateCourseDto: UpdateCourseDto): Promise<UpdateResult> {
@@ -77,5 +90,10 @@ export class CoursesService {
     mkdir(path, { recursive: true }, (err) => {
       if (err) throw err;
     });
+  }
+
+  readFileBase64(filePath: string): string {
+    const file: string = readFileSync(filePath, 'utf-8');
+    return Buffer.from(file, 'utf-8').toString('base64');
   }
 }
