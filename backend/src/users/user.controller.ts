@@ -106,4 +106,14 @@ export class UserController {
   remove(@Param('id') id: string): void {
     this.userService.removeUser(id);
   }
+
+  // to remove for prod
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Patch('me/grant-admin')
+  async grantFreeAdmin(@Request() req): Promise<void> {
+    const userId = req.user.sub;
+    
+    this.userService.setAdmin(userId);
+  }
 }

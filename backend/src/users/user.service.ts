@@ -5,6 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { Users } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { EditMeDto } from './dto/edit-me.dto';
+import { Roles } from './enum/roles';
 
 @Injectable()
 export class UserService {
@@ -56,5 +57,10 @@ export class UserService {
 
   removeUser(id: string): Promise<{ affected?: number }> {
     return this.userRepository.delete(id);
+  }
+
+  // remove for prod
+  setAdmin(userId: string): void {
+    this.userRepository.update({ id: userId }, { role: Roles.ADMIN });
   }
 }
