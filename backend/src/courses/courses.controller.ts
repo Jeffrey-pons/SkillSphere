@@ -14,6 +14,7 @@ import {
   Request,
   HttpCode,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -23,6 +24,7 @@ import { Express } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Course } from './entities/course.entity';
 import { CategoriesService } from 'src/categories/categories.service';
+import { Roles } from 'src/users/enum/roles';
 
 @Controller('courses')
 export class CoursesController {
@@ -62,16 +64,23 @@ export class CoursesController {
     return this.coursesService.findOne(id);
   }
 
-  @UseGuards(AuthGuard)
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
-    return this.coursesService.update(id, updateCourseDto);
-  }
+  // @UseGuards(AuthGuard)
+  // @Put(':id')
+  // update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
+  //   return this.coursesService.update(id, updateCourseDto);
+  // }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.coursesService.remove(id);
+  async remove(@Param('id') id: string, @Request() req) {
+    const user = req.user;
+    const course: Course = await this.coursesService.findOne(id);
+
+    if (user.role != Roles.ADMIN && course.userId != user.sub) {
+      throw new UnauthorizedException();
+    }
+
+    return this.coursesService.remove(course);
   }
 
   @Get(':criteria')

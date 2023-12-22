@@ -10,7 +10,7 @@ export class Category {
   @Column({ nullable: false, unique: true })
   public name: string;
 
-  @ManyToMany(() => Course, (course: Course) => course.categories)
+  @ManyToMany(() => Course, (course: Course) => course.categories, { onDelete: 'CASCADE' })
   @JoinTable({ name: 'course_category' })
   public courses: Course[];
 }

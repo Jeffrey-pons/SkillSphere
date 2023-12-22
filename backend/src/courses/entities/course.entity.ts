@@ -43,7 +43,7 @@ export class Course {
   })
   public created_at: Date;
 
-  @ManyToMany(() => Category, (category: Category) => category.courses)
+  @ManyToMany(() => Category, (category: Category) => category.courses, { onDelete: 'CASCADE' })
   @JoinTable({ name: 'course_category' })
   public categories: Category[];
 
