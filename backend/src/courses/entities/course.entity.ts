@@ -2,11 +2,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToMany,
   ManyToOne,
   UpdateDateColumn,
   JoinColumn,
-  JoinTable,
 } from 'typeorm';
 import { FileStatus } from '../enum/file-status';
 import { Level } from '../../_shared/enum/level';
@@ -36,6 +34,9 @@ export class Course {
 
   @Column({ nullable: false, enum: Level })
   public level: string;
+
+  @Column({ nullable: false })
+  public description: string;
 
   @CreateDateColumn({
     type: 'timestamp',

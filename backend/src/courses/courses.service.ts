@@ -1,4 +1,4 @@
-import {Injectable, NotFoundException, UseGuards} from '@nestjs/common';
+import { Injectable, NotFoundException, UseGuards } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
@@ -45,15 +45,15 @@ export class CoursesService {
   }
 
   async findOne(id: string): Promise<Course & { file: string }> {
-    const datas: Course = await this.coursesRepository.findOne({
+    const course: Course = await this.coursesRepository.findOne({
       where: { id: id },
       relations: ['category'],
     });
-    const filePath = `/home/node/files/${datas.userId}/${datas.id}.pdf`;
+    const filePath = `/home/node/files/${course.userId}/${course.id}.pdf`;
 
     const file: string = this.readFileBase64(filePath);
     return {
-      ...datas,
+      ...course,
       file: file,
     };
   }
