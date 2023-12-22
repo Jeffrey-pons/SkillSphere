@@ -31,9 +31,7 @@ import { FileStatus } from './enum/file-status';
 
 @Controller('courses')
 export class CoursesController {
-  constructor(
-    private readonly coursesService: CoursesService,
-  ) {}
+  constructor(private readonly coursesService: CoursesService) {}
 
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(AuthGuard)
@@ -54,7 +52,16 @@ export class CoursesController {
     @Request() req,
   ): Promise<Course> {
     const user = req.user;
-    return this.coursesService.create(user.sub, createCourseDto, file);
+    return this.coursesService.create(
+      user.sub,
+      {
+        title: req.body.title,
+        description: req.body.description,
+        level: req.body.level,
+        categoryId: req.body.categoryId,
+      },
+      file,
+    );
   }
 
   @Get()
@@ -98,6 +105,18 @@ export class CoursesController {
   @Patch('accept/:id')
   acceptCourse(@Param('id') id: string) {
     this.coursesService.updateStatus(id, FileStatus.ACCEPTE);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('accept/:id')
+  accept(@Param('id') id: string) {
+    return this.coursesService.updateStatus(id, FileStatus.ACCEPTE);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('decline/:id')
+  decline(@Param('id') id: string) {
+    return this.coursesService.updateStatus(id, FileStatus.REFUSE);
   }
 
   @Get(':criteria')
