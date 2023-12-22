@@ -4,7 +4,7 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { writeFileSync, closeSync, openSync, mkdir, readFileSync } from 'fs';
+import { writeFileSync, closeSync, openSync, mkdir, readFileSync, unlinkSync } from 'fs';
 import { Express } from 'express';
 import { Category } from 'src/categories/entities/category.entity';
 import { CategoriesService } from 'src/categories/categories.service';
@@ -62,8 +62,9 @@ export class CoursesService {
     return this.coursesRepository.update(id, updateCourseDto);
   }
 
-  remove(id: string): Promise<DeleteResult> {
-    return this.coursesRepository.delete(id);
+  remove(course: Course): Promise<DeleteResult> {
+    unlinkSync(`/home/node/files/${course.userId}/${course.id}.pdf`);
+    return this.coursesRepository.delete(course.id);
   }
 
   async findByCriteria(criteria: string): Promise<Course[]> {
