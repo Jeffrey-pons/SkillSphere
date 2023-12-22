@@ -1,6 +1,5 @@
-import { Column, Entity, ManyToMany } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { Course } from '../../courses/entities/course.entity';
-import { JoinTable } from 'typeorm';
 
 @Entity()
 export class Category {
@@ -10,7 +9,6 @@ export class Category {
   @Column({ nullable: false, unique: true })
   public name: string;
 
-  @ManyToMany(() => Course, (course: Course) => course.categories, { onDelete: 'CASCADE' })
-  @JoinTable({ name: 'course_category' })
+  @OneToMany(() => Course, (course: Course) => course.category)
   public courses: Course[];
 }

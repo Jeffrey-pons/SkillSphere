@@ -25,6 +25,9 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { Course } from './entities/course.entity';
 import { CategoriesService } from 'src/categories/categories.service';
 import { Roles } from 'src/users/enum/roles';
+import { RolesGuard } from 'src/users/guards/role.guard';
+import { Role } from 'src/users/decorators/role.decorator';
+import { FileStatus } from './enum/file-status';
 
 @Controller('courses')
 export class CoursesController {
@@ -81,6 +84,20 @@ export class CoursesController {
     }
 
     return this.coursesService.remove(course);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Role(Roles.ADMIN)
+  @Patch('decline/:id')
+  declineCourse(@Param('id') id: string) {
+    this.coursesService.updateStatus(id, FileStatus.REFUSE);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Role(Roles.ADMIN)
+  @Patch('accept/:id')
+  acceptCourse(@Param('id') id: string) {
+    this.coursesService.updateStatus(id, FileStatus.ACCEPTE);
   }
 
   @Get(':criteria')
