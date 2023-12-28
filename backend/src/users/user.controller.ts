@@ -112,7 +112,7 @@ export class UserController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthGuard, RolesGuard)
-  @Role(Roles.ADMIN)
+  @Role(Roles.USER)
   @Delete(':id')
   remove(@Param('id') id: string): void {
     this.userService.removeUser(id);
