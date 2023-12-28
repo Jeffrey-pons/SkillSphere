@@ -1,15 +1,15 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
-  Request,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
   Patch,
+  Post,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -23,6 +23,7 @@ import { UpdateResult } from 'typeorm';
 import { EditUserDto } from './dto/edit-user.dto';
 import { EditPasswordDto } from './dto/edit-password.dto';
 import * as bcrypt from 'bcrypt';
+import { EditRoleDto } from './dto/edit-role.dto';
 
 @Controller('user')
 export class UserController {
@@ -76,6 +77,17 @@ export class UserController {
   ): Promise<UpdateResult> {
     const user = req.user;
     return this.userService.editUserPwd(user.sub, updateUserPassword);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Patch('role')
+  @Role(Roles.ADMIN)
+  changeRole(@Body() updateUserRole: EditRoleDto): Promise<UpdateResult> {
+    return this.userService.updateUserRole(
+      updateUserRole.id,
+      updateUserRole.role,
+    );
   }
 
   @HttpCode(HttpStatus.OK)

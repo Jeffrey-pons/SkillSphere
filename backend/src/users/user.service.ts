@@ -1,11 +1,11 @@
-import {Injectable, UnauthorizedException} from '@nestjs/common';
-import {InjectRepository} from '@nestjs/typeorm';
-import {Repository, UpdateResult} from 'typeorm';
-import {CreateUserDto} from './dto/create-user.dto';
-import {Users} from './entities/user.entity';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, UpdateResult } from 'typeorm';
+import { CreateUserDto } from './dto/create-user.dto';
+import { Users } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import {Roles} from './enum/roles';
-import {EditPasswordDto} from './dto/edit-password.dto';
+import { Roles } from './enum/roles';
+import { EditPasswordDto } from './dto/edit-password.dto';
 
 @Injectable()
 export class UserService {
@@ -35,7 +35,9 @@ export class UserService {
   }
 
   async findAllUser(): Promise<Users[]> {
-    const users: Users[] = await this.userRepository.find();
+    const users: Users[] = await this.userRepository.find({
+      relations: ['courses'],
+    });
 
     return users.map((user) => {
       delete user.password;
@@ -75,6 +77,15 @@ export class UserService {
     } else {
       throw new UnauthorizedException();
     }
+  }
+
+  updateUserRole(id: string, role: Roles): Promise<UpdateResult> {
+    return this.userRepository
+      .createQueryBuilder()
+      .update(Users)
+      .set({ role })
+      .where('id = :id', { id })
+      .execute();
   }
 
   removeUser(id: string): Promise<{ affected?: number }> {
