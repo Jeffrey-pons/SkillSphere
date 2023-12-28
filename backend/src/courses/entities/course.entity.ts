@@ -19,7 +19,11 @@ export class Course {
   @Column({ nullable: false })
   public title: string;
 
-  @ManyToOne(() => Users, (user) => user.courses)
+  @ManyToOne(() => Users, (user) => user.courses, {
+    cascade: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'userId', referencedColumnName: 'id' })
   public user: Users;
 

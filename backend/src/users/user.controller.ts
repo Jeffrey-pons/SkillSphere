@@ -68,6 +68,17 @@ export class UserController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Patch('pwd')
+  changePassword(
+    @Body() updateUserPassword: EditPasswordDto,
+    @Request() req,
+  ): Promise<UpdateResult> {
+    const user = req.user;
+    return this.userService.editUserPwd(user.sub, updateUserPassword);
+  }
+
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard, RolesGuard)
   @Role(Roles.ADMIN)
   @Patch(':id')
@@ -113,7 +124,7 @@ export class UserController {
   @Patch('me/grant-admin')
   async grantFreeAdmin(@Request() req): Promise<void> {
     const userId = req.user.sub;
-    
+
     this.userService.setAdmin(userId);
   }
 }
