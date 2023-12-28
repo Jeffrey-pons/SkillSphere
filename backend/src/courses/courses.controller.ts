@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  Put,
   UseGuards,
   UseInterceptors,
   UploadedFile,
@@ -18,12 +17,10 @@ import {
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
-import { UpdateCourseDto } from './dto/update-course.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Course } from './entities/course.entity';
-import { CategoriesService } from 'src/categories/categories.service';
 import { Roles } from 'src/users/enum/roles';
 import { RolesGuard } from 'src/users/guards/role.guard';
 import { Role } from 'src/users/decorators/role.decorator';
