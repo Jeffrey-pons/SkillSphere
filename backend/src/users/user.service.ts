@@ -6,6 +6,8 @@ import { Users } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { Roles } from './enum/roles';
 import { EditPasswordDto } from './dto/edit-password.dto';
+import {Course} from "../courses/entities/course.entity";
+import {readFileSync} from "fs";
 
 @Injectable()
 export class UserService {
@@ -46,10 +48,16 @@ export class UserService {
   }
 
   async findOneById(id: string): Promise<Users> {
-    return this.userRepository.findOne({
+    const user: Users = await this.userRepository.findOne({
       relations: ['courses'],
       where: { id: id },
     });
+    user.courses = user.courses.map((cours) => {
+      const filePath: string = `/home/node/files/${cours.userId}/${cours.id}.pdf`;
+      const file: string = this.readFileBase64(filePath);
+      return { ...cours, file: file };
+    });
+    return user;
   }
 
   findOneByMail(mail: string): Promise<Users> {
@@ -95,5 +103,9 @@ export class UserService {
   // remove for prod
   setAdmin(userId: string): void {
     this.userRepository.update({ id: userId }, { role: Roles.ADMIN });
+  }
+
+  readFileBase64(filePath: string): string {
+    return readFileSync(filePath, 'base64');
   }
 }

@@ -14,6 +14,7 @@ import {
   HttpCode,
   HttpStatus,
   UnauthorizedException,
+  Put,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -25,6 +26,8 @@ import { Roles } from 'src/users/enum/roles';
 import { RolesGuard } from 'src/users/guards/role.guard';
 import { Role } from 'src/users/decorators/role.decorator';
 import { FileStatus } from './enum/file-status';
+import { UpdateCourseDto } from './dto/update-course.dto';
+import {UpdateResult} from "typeorm";
 
 @Controller('courses')
 export class CoursesController {
@@ -61,22 +64,40 @@ export class CoursesController {
     );
   }
 
+  @HttpCode(HttpStatus.OK)
   @Get()
   findAll() {
     return this.coursesService.findAll();
   }
 
+  @HttpCode(HttpStatus.OK)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.coursesService.findOne(id);
   }
 
-  // @UseGuards(AuthGuard)
-  // @Put(':id')
-  // update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
-  //   return this.coursesService.update(id, updateCourseDto);
-  // }
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Put(':id')
+  @UseInterceptors(FileInterceptor('file'))
+  update(
+    @Param('id') id: string,
+    @Body() updateCourseDto: UpdateCourseDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: 'pdf',
+        })
+        .build({
+          fileIsRequired: true,
+        }),
+    )
+    file: Express.Multer.File,
+  ): Promise<UpdateResult> {
+    return this.coursesService.update(id, updateCourseDto, file);
+  }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string, @Request() req) {
@@ -87,9 +108,10 @@ export class CoursesController {
       throw new UnauthorizedException();
     }
 
-    return this.coursesService.remove(course);
+    this.coursesService.remove(course);
   }
 
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard, RolesGuard)
   @Role(Roles.ADMIN)
   @Patch('decline/:id')
@@ -97,6 +119,7 @@ export class CoursesController {
     this.coursesService.updateStatus(id, FileStatus.REFUSE);
   }
 
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard, RolesGuard)
   @Role(Roles.ADMIN)
   @Patch('accept/:id')
@@ -104,18 +127,21 @@ export class CoursesController {
     this.coursesService.updateStatus(id, FileStatus.ACCEPTE);
   }
 
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @Patch('accept/:id')
   accept(@Param('id') id: string) {
     return this.coursesService.updateStatus(id, FileStatus.ACCEPTE);
   }
 
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
   @Patch('decline/:id')
   decline(@Param('id') id: string) {
     return this.coursesService.updateStatus(id, FileStatus.REFUSE);
   }
 
+  @HttpCode(HttpStatus.OK)
   @Get(':criteria')
   findByCriteria(@Param('criteria') criteria: string): Promise<Course[]> {
     return this.coursesService.findByCriteria(criteria);
