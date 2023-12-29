@@ -4,7 +4,14 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { writeFileSync, closeSync, openSync, mkdir, readFileSync, unlinkSync } from 'fs';
+import {
+  writeFileSync,
+  closeSync,
+  openSync,
+  mkdir,
+  readFileSync,
+  unlinkSync,
+} from 'fs';
 import { Express } from 'express';
 import { Category } from 'src/categories/entities/category.entity';
 import { CategoriesService } from 'src/categories/categories.service';
@@ -95,7 +102,6 @@ export class CoursesService {
   }
 
   readFileBase64(filePath: string): string {
-    const file: string = readFileSync(filePath, 'utf-8');
-    return Buffer.from(file, 'utf-8').toString('base64');
+    return readFileSync(filePath, 'base64');
   }
 }
