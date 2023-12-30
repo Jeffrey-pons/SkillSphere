@@ -114,14 +114,6 @@ export class CoursesController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard, RolesGuard)
   @Role(Roles.ADMIN)
-  @Patch('decline/:id')
-  declineCourse(@Param('id') id: string) {
-    this.coursesService.updateStatus(id, FileStatus.REFUSE);
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard, RolesGuard)
-  @Role(Roles.ADMIN)
   @Patch('accept/:id')
   accept(@Param('id') id: string) {
     return this.coursesService.updateStatus(id, FileStatus.ACCEPTE);
