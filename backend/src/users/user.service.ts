@@ -1,10 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Users } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { Roles } from './enum/roles';
+import { EditPasswordDto } from './dto/edit-password.dto';
+import {Course} from "../courses/entities/course.entity";
+import {readFileSync} from "fs";
 
 @Injectable()
 export class UserService {
@@ -34,7 +37,9 @@ export class UserService {
   }
 
   async findAllUser(): Promise<Users[]> {
-    const users: Users[] = await this.userRepository.find();
+    const users: Users[] = await this.userRepository.find({
+      relations: ['courses'],
+    });
 
     return users.map((user) => {
       delete user.password;
@@ -43,10 +48,16 @@ export class UserService {
   }
 
   async findOneById(id: string): Promise<Users> {
-    return this.userRepository.findOne({
+    const user: Users = await this.userRepository.findOne({
       relations: ['courses'],
       where: { id: id },
     });
+    user.courses = user.courses.map((cours) => {
+      const filePath: string = `/home/node/files/${cours.userId}/${cours.id}.pdf`;
+      const file: string = this.readFileBase64(filePath);
+      return { ...cours, file: file };
+    });
+    return user;
   }
 
   findOneByMail(mail: string): Promise<Users> {
@@ -57,6 +68,34 @@ export class UserService {
     return this.userRepository.update({ id: userId }, userData);
   }
 
+  async editUserPwd(
+    userId: string,
+    userData: EditPasswordDto,
+  ): Promise<UpdateResult> {
+    const user: Users = await this.findOneById(userId);
+    if (await bcrypt.compare(userData.old_password, user.password)) {
+      const salt: string = await bcrypt.genSalt();
+      const password: string = await bcrypt.hash(userData.new_password, salt);
+      return this.userRepository
+        .createQueryBuilder()
+        .update(Users)
+        .set({ password })
+        .where('id = :userId', { userId })
+        .execute();
+    } else {
+      throw new UnauthorizedException();
+    }
+  }
+
+  updateUserRole(id: string, role: Roles): Promise<UpdateResult> {
+    return this.userRepository
+      .createQueryBuilder()
+      .update(Users)
+      .set({ role })
+      .where('id = :id', { id })
+      .execute();
+  }
+
   removeUser(id: string): Promise<{ affected?: number }> {
     return this.userRepository.delete(id);
   }
@@ -64,5 +103,9 @@ export class UserService {
   // remove for prod
   setAdmin(userId: string): void {
     this.userRepository.update({ id: userId }, { role: Roles.ADMIN });
+  }
+
+  readFileBase64(filePath: string): string {
+    return readFileSync(filePath, 'base64');
   }
 }

@@ -12,6 +12,8 @@ services:
     volumes:
       - ./db-data:/var/lib/postgresql/data:rw
       - ./db-config/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - skillsphere
 
   backend:
     build:
@@ -24,3 +26,10 @@ services:
       - ${BACKEND_PORT}:${BACKEND_PORT}
     expose:
       - ${BACKEND_PORT}
+    networks:
+      - skillsphere
+
+networks:
+  skillsphere:
+    driver: bridge
+    external: true

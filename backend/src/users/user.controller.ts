@@ -1,15 +1,15 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
-  Request,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
   Patch,
+  Post,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -23,8 +23,9 @@ import { UpdateResult } from 'typeorm';
 import { EditUserDto } from './dto/edit-user.dto';
 import { EditPasswordDto } from './dto/edit-password.dto';
 import * as bcrypt from 'bcrypt';
+import { EditRoleDto } from './dto/edit-role.dto';
 
-@Controller('user')
+@Controller('api/user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -68,6 +69,28 @@ export class UserController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Patch('pwd')
+  changePassword(
+    @Body() updateUserPassword: EditPasswordDto,
+    @Request() req,
+  ): Promise<UpdateResult> {
+    const user = req.user;
+    return this.userService.editUserPwd(user.sub, updateUserPassword);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Patch('role')
+  @Role(Roles.ADMIN)
+  changeRole(@Body() updateUserRole: EditRoleDto): Promise<UpdateResult> {
+    return this.userService.updateUserRole(
+      updateUserRole.id,
+      updateUserRole.role,
+    );
+  }
+
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard, RolesGuard)
   @Role(Roles.ADMIN)
   @Patch(':id')
@@ -101,8 +124,16 @@ export class UserController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthGuard, RolesGuard)
-  @Role(Roles.ADMIN)
+  @Role(Roles.USER)
   @Delete(':id')
+  removeMe(@Param('id') id: string): void {
+    this.userService.removeUser(id);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Role(Roles.ADMIN)
+  @Delete('delete/:id')
   remove(@Param('id') id: string): void {
     this.userService.removeUser(id);
   }
@@ -113,7 +144,7 @@ export class UserController {
   @Patch('me/grant-admin')
   async grantFreeAdmin(@Request() req): Promise<void> {
     const userId = req.user.sub;
-    
+
     this.userService.setAdmin(userId);
   }
 }

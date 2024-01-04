@@ -1,4 +1,4 @@
-import {Users} from "../../users/entities/user.entity";
+import { Users } from '../../users/entities/user.entity';
 
 export class UpdateCourseDto {
   title: string;

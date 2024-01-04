@@ -1,12 +1,17 @@
-import { Injectable, NotFoundException, UseGuards } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { writeFileSync, closeSync, openSync, mkdir, readFileSync, unlinkSync } from 'fs';
-import { Express } from 'express';
-import { Category } from 'src/categories/entities/category.entity';
+import {
+  writeFileSync,
+  closeSync,
+  openSync,
+  mkdir,
+  readFileSync,
+  unlinkSync,
+} from 'fs';
 import { CategoriesService } from 'src/categories/categories.service';
 import { FileStatus } from './enum/file-status';
 
@@ -40,8 +45,15 @@ export class CoursesService {
     return newCourse;
   }
 
-  findAll(): Promise<Course[]> {
-    return this.coursesRepository.find();
+  async findAll(): Promise<any[]> {
+    const courses: Course[] = await this.coursesRepository.find();
+    const coursesWithFile = [];
+    courses.forEach((cours: Course) => {
+      const filePath: string = `/home/node/files/${cours.userId}/${cours.id}.pdf`;
+      const file: string = this.readFileBase64(filePath);
+      coursesWithFile.push({ ...cours, file: file });
+    });
+    return coursesWithFile;
   }
 
   async findOne(id: string): Promise<Course & { file: string }> {
@@ -58,7 +70,13 @@ export class CoursesService {
     };
   }
 
-  update(id: string, updateCourseDto: UpdateCourseDto): Promise<UpdateResult> {
+  update(
+    id: string,
+    updateCourseDto: UpdateCourseDto,
+    file: Express.Multer.File,
+  ): Promise<UpdateResult> {
+    const filePath: string = `/home/node/files/${updateCourseDto.user_id}/${id}.pdf`;
+    this.writeFile(filePath, file);
     return this.coursesRepository.update(id, updateCourseDto);
   }
 
@@ -95,7 +113,6 @@ export class CoursesService {
   }
 
   readFileBase64(filePath: string): string {
-    const file: string = readFileSync(filePath, 'utf-8');
-    return Buffer.from(file, 'utf-8').toString('base64');
+    return readFileSync(filePath, 'base64');
   }
 }

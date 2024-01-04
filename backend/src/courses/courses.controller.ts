@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  Put,
   UseGuards,
   UseInterceptors,
   UploadedFile,
@@ -15,21 +14,22 @@ import {
   HttpCode,
   HttpStatus,
   UnauthorizedException,
+  Put,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
-import { UpdateCourseDto } from './dto/update-course.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Course } from './entities/course.entity';
-import { CategoriesService } from 'src/categories/categories.service';
 import { Roles } from 'src/users/enum/roles';
 import { RolesGuard } from 'src/users/guards/role.guard';
 import { Role } from 'src/users/decorators/role.decorator';
 import { FileStatus } from './enum/file-status';
+import { UpdateCourseDto } from './dto/update-course.dto';
+import {UpdateResult} from "typeorm";
 
-@Controller('courses')
+@Controller('api/courses')
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
@@ -64,22 +64,40 @@ export class CoursesController {
     );
   }
 
+  @HttpCode(HttpStatus.OK)
   @Get()
   findAll() {
     return this.coursesService.findAll();
   }
 
+  @HttpCode(HttpStatus.OK)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.coursesService.findOne(id);
   }
 
-  // @UseGuards(AuthGuard)
-  // @Put(':id')
-  // update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
-  //   return this.coursesService.update(id, updateCourseDto);
-  // }
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  @Put(':id')
+  @UseInterceptors(FileInterceptor('file'))
+  update(
+    @Param('id') id: string,
+    @Body() updateCourseDto: UpdateCourseDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: 'pdf',
+        })
+        .build({
+          fileIsRequired: true,
+        }),
+    )
+    file: Express.Multer.File,
+  ): Promise<UpdateResult> {
+    return this.coursesService.update(id, updateCourseDto, file);
+  }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string, @Request() req) {
@@ -90,35 +108,26 @@ export class CoursesController {
       throw new UnauthorizedException();
     }
 
-    return this.coursesService.remove(course);
+    this.coursesService.remove(course);
   }
 
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard, RolesGuard)
   @Role(Roles.ADMIN)
-  @Patch('decline/:id')
-  declineCourse(@Param('id') id: string) {
-    this.coursesService.updateStatus(id, FileStatus.REFUSE);
-  }
-
-  @UseGuards(AuthGuard, RolesGuard)
-  @Role(Roles.ADMIN)
-  @Patch('accept/:id')
-  acceptCourse(@Param('id') id: string) {
-    this.coursesService.updateStatus(id, FileStatus.ACCEPTE);
-  }
-
-  @UseGuards(AuthGuard)
   @Patch('accept/:id')
   accept(@Param('id') id: string) {
     return this.coursesService.updateStatus(id, FileStatus.ACCEPTE);
   }
 
-  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Role(Roles.ADMIN)
   @Patch('decline/:id')
   decline(@Param('id') id: string) {
     return this.coursesService.updateStatus(id, FileStatus.REFUSE);
   }
 
+  @HttpCode(HttpStatus.OK)
   @Get(':criteria')
   findByCriteria(@Param('criteria') criteria: string): Promise<Course[]> {
     return this.coursesService.findByCriteria(criteria);
