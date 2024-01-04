@@ -29,7 +29,7 @@ import { FileStatus } from './enum/file-status';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import {UpdateResult} from "typeorm";
 
-@Controller('courses')
+@Controller('api/courses')
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 

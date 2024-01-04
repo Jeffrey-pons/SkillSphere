@@ -25,7 +25,7 @@ import { EditPasswordDto } from './dto/edit-password.dto';
 import * as bcrypt from 'bcrypt';
 import { EditRoleDto } from './dto/edit-role.dto';
 
-@Controller('user')
+@Controller('api/user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
