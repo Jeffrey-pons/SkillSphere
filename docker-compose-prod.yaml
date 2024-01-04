@@ -7,8 +7,15 @@ services:
     restart: always
     ports:
       - 5432:5432
-    env_file:
-      - .env
+    environment:
+      - BACKEND_HOST=${BACKEND_HOST}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+
     volumes:
       - ./db-data:/var/lib/postgresql/data:rw
       - ./db-config/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
